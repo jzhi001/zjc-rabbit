@@ -16,3 +16,5 @@ fun getDog(): Dog = Dog("cola", 11)
 fun getDogs(): List<Dog> = listOf(getDog(), Dog("doggie", 1))
 
 fun getColaJson(): String = """{"name":"cola","age":11}"""
+
+fun getDogsJson(): String = """[{"name":"cola","age":11},{"name":"doggie","age":1}]"""

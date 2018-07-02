@@ -71,7 +71,7 @@ class RabbitCaller(
     }
 
     private fun initReplyQueue() {
-        replyQueue ?: channel.declareAnoymousQueue()
+        replyQueue ?: channel.declareAnonymousQueue()
     }
 
     fun <T : Any> setCallback(resolve: (T) -> Unit, reject: (T) -> Unit): RabbitCaller {

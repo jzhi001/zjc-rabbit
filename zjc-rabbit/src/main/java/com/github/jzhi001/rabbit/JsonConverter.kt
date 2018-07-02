@@ -6,11 +6,13 @@ import org.slf4j.LoggerFactory
 
 class JsonConverter {
 
-    companion object Converter{
+    companion object Converter {
         private val mapper: ObjectMapper = ObjectMapper()
 
+        @JvmStatic
         fun toJsonBytes(obj: Any): ByteArray = mapper.writeValueAsBytes(obj)
 
+        @JvmStatic
         fun <T> fromJsonBytes(jsonBytes: ByteArray, clazz: Class<T>): T = mapper.readValue(jsonBytes, clazz)
 
     }

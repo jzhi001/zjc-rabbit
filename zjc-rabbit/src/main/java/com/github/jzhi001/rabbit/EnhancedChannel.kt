@@ -14,7 +14,7 @@ class EnhancedChannel(var innerChannel: Channel) : Channel by innerChannel {
         innerChannel.exchangeDeclare(exchangeName, BuiltinExchangeType.TOPIC)
     }
 
-    fun declareAnoymousQueue(): String = innerChannel.queueDeclare().queue
+    fun declareAnonymousQueue(): String = innerChannel.queueDeclare().queue
 
     fun declareOnlyDurableQueue(queueName: String) {
         innerChannel.queueDeclare(queueName,true,false,false,null)
