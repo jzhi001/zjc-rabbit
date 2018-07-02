@@ -1,7 +1,22 @@
+buildscript {
+    ext.kotlin_version = '1.2.31'
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
 plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version '1.2.50'
 }
+
+apply plugin: 'maven'
+apply plugin: 'signing'
+
 
 group 'com.github.jzhi001'
 version '1.0-SNAPSHOT'
@@ -32,3 +47,67 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: 'zjc', password: '$100Min3years')
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: 'zjc', password: '$100Min3years')
+            }
+
+            pom.project {
+                name 'zjc-rabbit'
+                packaging 'jar'
+                description 'homemade rabbitMQ framework'
+                url 'https://github.com/jzhi001/zjc-rabbit'
+
+                scm {
+                    url 'https://github.com/jzhi001/zjc-rabbit'
+                    connection 'scm:git:git//github.com/jzhi001/zjc-rabbit.git'
+                    developerConnection 'scm:git:ssh://github.com:jzhi001/zjc-rabbit.git'
+                }
+
+                licenses{
+                    license{
+                        name 'MIT License'
+                        url 'https://github.com/jzhi001/zjc-rabbit/blob/master/LICENSE'
+                        distribution 'repo'
+                    }
+                }
+
+                developers{
+                    developer{
+                        id 'zjc'
+                        name 'Zhi Jicheng'
+                        email 'jzhi001@fiu.edu'
+                    }
+                }
+            }
+        }
+    }
+}
+
