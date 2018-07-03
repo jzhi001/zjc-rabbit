@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="CachingRabbitConnFactoryTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2018-07-03T05:47:45" hostname="QH-20180329UXXG" time="0.341">
-  <properties/>
-  <testcase name="test_get_connection" classname="CachingRabbitConnFactoryTest" time="0.338"/>
-  <testcase name="test_get_channel" classname="CachingRabbitConnFactoryTest" time="0.002"/>
-  <testcase name="test_get_enhanced_channel" classname="CachingRabbitConnFactoryTest" time="0.001"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
