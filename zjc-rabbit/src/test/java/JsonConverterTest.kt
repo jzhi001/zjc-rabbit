@@ -2,6 +2,7 @@ import com.github.jzhi001.rabbit.JsonConverter
 import org.junit.Test
 
 import org.junit.Assert.*
+import java.lang.reflect.ParameterizedType
 import java.nio.charset.StandardCharsets
 
 class JsonConverterTest {
@@ -21,7 +22,7 @@ class JsonConverterTest {
     @Test
     @Throws(Exception::class)
     fun test_from_json_pojo() {
-        val converted = JsonConverter.fromJsonBytes(colaJson.toByteArray(charset("utf-8")), Dog::class.java)
+        val converted = JsonConverter.fromJsonBytes(colaJson.toByteArray(charset("utf-8")), Class.forName("Dog"))
         assertEquals("fromJson(pojo) error", cola, converted)
     }
 
@@ -35,7 +36,8 @@ class JsonConverterTest {
     @Test
     @Throws(Exception::class)
     fun test_from_json_list() {
-        val converted = JsonConverter.fromJsonBytes(dogsJson.toByteArray(charset("utf-8")), List::class.java)
+        val converted:List<Dog> = JsonConverter.fromJsonBytes(dogsJson.toByteArray(charset("utf-8")),
+                "java.util.List<Dog>") as List<Dog>
         assertEquals("fromJson(list) error", dogs, converted)
     }
 
