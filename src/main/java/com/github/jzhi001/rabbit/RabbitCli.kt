@@ -4,6 +4,7 @@ package com.github.jzhi001.rabbit
 
 import EnhancedChannel
 import com.rabbitmq.client.AMQP
+import com.rabbitmq.client.Channel
 import com.rabbitmq.client.DefaultConsumer
 import com.rabbitmq.client.Envelope
 import org.slf4j.Logger
@@ -15,7 +16,7 @@ class RabbitClient(private val factory: CachingRabbitConnFactory) {
     val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
     fun sendTo(exchange: String, routeKey: String): RabbitCaller =
-            RabbitCaller(factory, Destination(exchange, routeKey))
+            RabbitCaller(factory, Destination.sendDestination(exchange, routeKey))
 
     fun from(queue: String): RabbitWorker = RabbitWorker(queue, factory.getEnhancedChannel())
 }
@@ -46,7 +47,7 @@ class RabbitWorker(private val queue: String,
         private fun sendResponse(resp: Any?, properties: AMQP.BasicProperties) {
             println("sending to ${properties.replyTo}")
             val msgParams: MsgParams<T> = MsgParams(correlationId = properties.correlationId, msg = resp as T)
-            publishJson(channel, msgParams, Destination(routeKey = properties.replyTo))
+            channel.publishJson(msgParams, Destination.replyDestination(properties.replyTo))
         }
 
     }
@@ -62,11 +63,10 @@ class RabbitCaller(
 
     private var callbackHandler: CallbackHandler<*>? = null
 
-    //TODO send(Json).reply(true).cId(null).body(obj)
     fun <T : Any> sendJson(obj: T,
                            correlationId: String = UUID.randomUUID().toString()): RabbitCaller {
         val msgParam: MsgParams<T> = MsgParams(msg = obj, correlationId = correlationId, replyTo = replyQueue)
-        publishJson(sendChannel, msgParam, destination)
+        sendChannel.publishJson(msgParam, destination)
         return this
     }
 
@@ -86,10 +86,10 @@ class RabbitCaller(
 
 }
 
-private fun <T : Any> publishJson(channel: EnhancedChannel,
-                                  msgParams: MsgParams<T>,
-                                  destination: Destination) {
-    channel.basicPublish(destination.exchange,
+private fun <T : Any> Channel.publishJson(
+        msgParams: MsgParams<T>,
+        destination: Destination) {
+    basicPublish(destination.exchange,
             destination.routeKey,
             buildAmqpJsonProp(msgParams),
             JsonConverter.toJsonBytes(msgParams.msg))
@@ -135,24 +135,36 @@ data class MsgParams<T : Any>(
         val contentType: String = "application/json",
         val correlationId: String = UUID.randomUUID().toString(),
         val msg: T,
-        val msgClassName: String = getClassDescription(msg),
+        val msgClassName: String = msg.getClassDescription(),
         val replyTo: String? = null)
 
-//TODO map? generic class?
-fun getClassDescription(obj: Any): String =
-        when {
-            obj !is Collection<*> -> {
-                obj.javaClass.name
+private fun Any.getClassDescription(): String =
+        when (this) {
+            is List<*> -> {
+                val generic = this[0]!!::class.java.name
+                "java.util.List<$generic>"
             }
-            isList(obj) -> {
-                val genericType = (obj as List<*>)[0]!!.javaClass.name
-                "java.util.List<$genericType>"
+            is Map<*, *> -> {
+                val (keyClass, valClass) = this.asSequence()
+                        .map { (k, v) ->
+                            k!!::class.java.name to v!!::class.java.name
+                        }
+                        .first()
+                "java.util.Map<$keyClass, $valClass>"
             }
-            else -> "java.lang.Object"
+            else -> this.javaClass.name
         }
 
-private fun isList(obj: Any): Boolean = obj is List<*>
+private inline fun <reified T : Any> List<T>.genericType(): String = T::class.java.name
 
 
-data class Destination(val exchange: String = "", val routeKey: String)
+class Destination private constructor(val exchange: String = "", val routeKey: String) {
+    companion object Factory {
+        @JvmStatic
+        fun replyDestination(queue: String): Destination = Destination(exchange = "", routeKey = queue)
+
+        @JvmStatic
+        fun sendDestination(exchange: String = "", routeKey: String): Destination = Destination(exchange, routeKey)
+    }
+}
 
