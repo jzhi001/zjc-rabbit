@@ -4,6 +4,7 @@ import com.github.jzhi001.rabbit.CachingRabbitConnFactory
 import com.github.jzhi001.rabbit.RabbitCaller
 import com.github.jzhi001.rabbit.RabbitClient
 import java.util.concurrent.ExecutorService
+import com.github.jzhi001.rabbit.EnhancedChannel
 
 data class Dog(var name: String? = null,
                var age: Int? = null)

@@ -2,7 +2,7 @@
 
 package com.github.jzhi001.rabbit
 
-import EnhancedChannel
+import com.github.jzhi001.rabbit.EnhancedChannel
 import com.rabbitmq.client.AMQP
 import com.rabbitmq.client.Channel
 import com.rabbitmq.client.DefaultConsumer

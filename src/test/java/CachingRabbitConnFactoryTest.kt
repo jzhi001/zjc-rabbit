@@ -1,3 +1,4 @@
+import com.github.jzhi001.rabbit.EnhancedChannel
 import com.github.jzhi001.rabbit.CachingRabbitConnFactory
 import com.github.jzhi001.rabbit.RabbitConnFactory
 import org.junit.BeforeClass

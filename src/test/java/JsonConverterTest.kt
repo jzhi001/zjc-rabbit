@@ -2,7 +2,6 @@ import com.github.jzhi001.rabbit.JsonConverter
 import org.junit.Test
 
 import org.junit.Assert.*
-import java.lang.reflect.ParameterizedType
 import java.nio.charset.StandardCharsets
 
 class JsonConverterTest {
